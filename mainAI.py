@@ -116,7 +116,7 @@ def count(image):
         # Decode the Base64-encoded image data to bytes
         image_bytes = base64.b64decode(image_base64)
         # Open the image data as an Image object
-        image = Image.open(io.BytesIO(image_bytes
+        image = Image.open(io.BytesIO(image_bytes))
     else:
         print("It is ok ,All is Well", response.status_code)
     return image, num
