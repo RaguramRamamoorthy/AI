@@ -155,7 +155,9 @@ def wa_sms_reply():
         user_number = request.form.get('WaId')
 
         if msg_url is not None:
+            print("1")
             json_path = requests.get(msg_url, auth=(username, password))
+            print("2")
             if json_path.status_code == 200:
                 # Check if the response content is an image
                 if json_path.headers.get('content-type') == 'image/jpeg':
