@@ -26,3 +26,4 @@ urllib3==2.0.5
 werkzeug
 yarl
 zipp
+gunicorn
