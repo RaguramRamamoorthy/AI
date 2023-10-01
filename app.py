@@ -30,7 +30,7 @@ def process_image_and_send_response(image_data, msg, user_number):
         timestamp = time.strftime("%Y%m%d%H%M%S")
         result_image_filename = f"{results_folder}/result_{timestamp}.png"
         image_with_count.save(result_image_filename, format='PNG')
-        media_url = f"https://3fa9-117-195-116-67.ngrok-free.app/{result_image_filename}"
+        media_url = f"https://whatsapphandler.onrender.com/{result_image_filename}"
         send_whatsapp_response(user_number, media_url, num)
     except Exception as e:
         print("Error processing image:", str(e))
