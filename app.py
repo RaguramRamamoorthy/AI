@@ -158,7 +158,9 @@ def wa_sms_reply():
             print("1")
             json_path = requests.get(msg_url, auth=(username, password))
             print("2")
+            print(json_path.status_code)
             if json_path.status_code == 200:
+                print("3")
                 # Check if the response content is an image
                 if json_path.headers.get('content-type') == 'image/jpeg':
                     # Read the image data
