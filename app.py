@@ -98,6 +98,7 @@ def respond(message):
 
 def count(image):
     # The URL of the endpoint
+    print('hi')
     url = "https://cellcounter.onrender.com/detect"
     img_byte_arr = io.BytesIO()
     image.save(img_byte_arr, format='PNG')
