@@ -12,7 +12,7 @@ import time
 app = Flask(__name__)
 
 username = 'ACfc171cd799d4d5d5b4ea001e15a27cf2'
-password = 'd4429fabc1f9c5a1e9347d43b250ad9e'
+password = '6d526a2566ef2ba2bbe98984c7361022'
 
 
 def process_image_and_send_response(image_data, msg, user_number):
@@ -155,12 +155,9 @@ def wa_sms_reply():
         user_number = request.form.get('WaId')
 
         if msg_url is not None:
-            print("1")
             json_path = requests.get(msg_url, auth=(username, password))
-            print("2")
             print(json_path.status_code)
             if json_path.status_code == 200:
-                print("3")
                 # Check if the response content is an image
                 if json_path.headers.get('content-type') == 'image/jpeg':
                     # Read the image data
