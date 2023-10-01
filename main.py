@@ -204,6 +204,6 @@ def wa_sms_reply():
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5001, debug=True)
+    app.run()
 
 # https://d168-117-255-122-210.ngrok-free.app/1693488871587.jpeg
