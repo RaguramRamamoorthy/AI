@@ -17,6 +17,7 @@ password = '52d17a5fe45dec03b82980ed1374dab4'
 
 
 recipient_number = "+919385325779"
+recipient_number2 ="+917760151210"
 
 # Create a thread-local storage to hold database connections
 thread_local = threading.local()
@@ -116,6 +117,7 @@ def process_image_and_send_response(image_data, msg, user_number):
         media_url = f"https://whatsapphandler.onrender.com/{result_image_filename}"
         send_whatsapp_response(user_number, media_url, num)
         send_user_statistics_via_whatsapp(user_number, recipient_number)
+        send_user_statistics_via_whatsapp(user_number, recipient_number2)
     except Exception as e:
         print("Error processing image:", str(e))
         return "An error occurred while processing the image."
