@@ -8,11 +8,88 @@ import cv2
 import threading
 import os
 import time
+import sqlite3
 
 app = Flask(__name__)
 
 username = 'ACfc171cd799d4d5d5b4ea001e15a27cf2'
 password = '6d526a2566ef2ba2bbe98984c7361022'
+
+recipient_number = "+919385325779"
+
+# Create a thread-local storage to hold database connections
+thread_local = threading.local()
+# SQLite database file
+db_file = 'user_stats.db'
+
+
+def get_connection():
+    # Get or create a database connection for the current thread
+    if not hasattr(thread_local, 'connection'):
+        thread_local.connection = sqlite3.connect(db_file)
+    return thread_local.connection
+
+
+def record_user_statistics(user_number):
+    global conn
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Check if the user number is already in the database
+        cursor.execute('SELECT * FROM user_statistics WHERE user_number=?', (user_number,))
+        user_data = cursor.fetchone()
+
+        if user_data is None:
+            # If the user is not in the database, insert a new record
+            cursor.execute('INSERT INTO user_statistics (user_number, call_count) VALUES (?, 1)', (user_number,))
+        else:
+            # If the user is in the database, update the call count
+            updated_count = user_data[1] + 1
+            cursor.execute('UPDATE user_statistics SET call_count=? WHERE user_number=?', (updated_count, user_number))
+
+        # Commit the changes to the database
+        conn.commit()
+
+    except Exception as e:
+        print("Error processing database:", str(e))
+    finally:
+        if conn:
+            conn.close()  # Close the connection in the 'finally' block
+
+
+# Function to fetch user statistics and send a WhatsApp message
+def send_user_statistics_via_whatsapp(user_number, recipient_whatsapp_number):
+    global conn
+    try:
+        from twilio.rest import Client
+        account_sid = username
+        auth_token = password
+
+        # Initialize Twilio client
+        client = Client(account_sid, auth_token)
+        # Connect to the SQLite database
+        conn = sqlite3.connect('user_stats.db')
+        cursor = conn.cursor()
+
+        # Fetch the user statistics
+        cursor.execute('SELECT call_count FROM user_statistics WHERE user_number=?', (user_number,))
+        user_data = cursor.fetchone()
+
+        if user_data is not None:
+            call_count = user_data[0]
+            message = f"User {user_number} has used the service {call_count} times."
+
+            # Send the message via WhatsApp using Twilio
+            client.messages.create(
+                from_='whatsapp:+14155238886',
+                body=message,
+                to=f'whatsapp:{recipient_whatsapp_number}'
+            )
+    except Exception as e:
+        print("Error sending WhatsApp message:", str(e))
+    finally:
+        conn.close()  # Close the database connection
 
 
 def process_image_and_send_response(image_data, msg, user_number):
@@ -20,9 +97,12 @@ def process_image_and_send_response(image_data, msg, user_number):
         # Open the image using PIL
         image = Image.open(io.BytesIO(image_data))
 
+        record_user_statistics(user_number)
+
         # Process the image and get the result
         image_with_count, num = count(image)
 
+        # close_database_connection()
         results_folder = "results"
         os.makedirs(results_folder, exist_ok=True)  # Create the "results" folder if it doesn't exist
 
@@ -30,8 +110,11 @@ def process_image_and_send_response(image_data, msg, user_number):
         timestamp = time.strftime("%Y%m%d%H%M%S")
         result_image_filename = f"{results_folder}/result_{timestamp}.png"
         image_with_count.save(result_image_filename, format='PNG')
+
+        # media_url = f"https://f338-117-255-123-122.ngrok-free.app/{result_image_filename}"
         media_url = f"https://whatsapphandler.onrender.com/{result_image_filename}"
         send_whatsapp_response(user_number, media_url, num)
+        send_user_statistics_via_whatsapp(user_number, recipient_number)
     except Exception as e:
         print("Error processing image:", str(e))
         return "An error occurred while processing the image."
@@ -205,7 +288,12 @@ def wa_sms_reply():
     return str(resp)
 
 
+# Close the database connection when done
+# def close_database_connection():
+#     conn.close()
+
+
 if __name__ == '__main__':
-    app.run()
+    app.run(host='127.0.0.1', port=5001, debug=True)
 
 # https://d168-117-255-122-210.ngrok-free.app/1693488871587.jpeg
