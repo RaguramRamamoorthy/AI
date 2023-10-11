@@ -15,9 +15,8 @@ app = Flask(__name__)
 username = 'ACfc171cd799d4d5d5b4ea001e15a27cf2'
 password = '52d17a5fe45dec03b82980ed1374dab4'
 
-
 recipient_number = "+919385325779"
-recipient_number2 ="+917760151210"
+recipient_number2 = "+917760151210"
 
 # Create a thread-local storage to hold database connections
 thread_local = threading.local()
@@ -92,6 +91,29 @@ def send_user_statistics_via_whatsapp(user_number, recipient_whatsapp_number):
         print("Error sending WhatsApp message:", str(e))
     finally:
         conn.close()  # Close the database connection
+
+
+def get_all_user_statistics():
+    global conn
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        # Select all records from the user_statistics table
+        cursor.execute('SELECT user_number, call_count FROM user_statistics')
+        records = cursor.fetchall()
+
+        # Close the cursor and return the records
+        cursor.close()
+        return records
+
+    except Exception as e:
+        print("Error fetching user statistics:", str(e))
+        return None  # Return None in case of an error
+
+    finally:
+        if conn:
+            conn.close()  # Close the connection in the 'finally' block
 
 
 def process_image_and_send_response(image_data, msg, user_number):
@@ -287,6 +309,11 @@ def wa_sms_reply():
     # resp.message("You said: {}".format(msg))
     else:
         reply.body("Your image is being processed by our AI agent ,please wait - you will receive the results shortly.")
+        user_statistics = get_all_user_statistics()
+        if user_statistics:
+            for record in user_statistics:
+                user_number, call_count = record
+                print(f"User Number: {user_number}, Call Count: {call_count}")
 
     return str(resp)
 
