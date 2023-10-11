@@ -13,7 +13,7 @@ import sqlite3
 app = Flask(__name__)
 
 username = 'ACfc171cd799d4d5d5b4ea001e15a27cf2'
-password = '52d17a5fe45dec03b82980ed1374dab4'
+password = '0ef66b04960dd6ac820cd874f26814d9'
 
 recipient_number = "+919385325779"
 recipient_number2 = "+917760151210"
